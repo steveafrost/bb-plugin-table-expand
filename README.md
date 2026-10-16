@@ -14,7 +14,7 @@ inside the message column. Upstream request: https://github.com/get-bb/bb/issues
 From the bb plugin store (bb-community), or:
 
 ```sh
-bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@v0.1.0
+bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@v0.1.1
 ```
 
 ## Develop

@@ -1,11 +1,15 @@
 table[data-te-table] { cursor: zoom-in; }
 
-[data-te-wrapper] { position: relative; }
+[data-te-cell] {
+  position: relative;
+  padding-right: 34px !important;
+}
 
 [data-te-button] {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 50%;
+  right: 5px;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,7 +23,7 @@ table[data-te-table] { cursor: zoom-in; }
   transition: opacity 0.12s ease;
   cursor: pointer;
 }
-[data-te-wrapper]:hover > [data-te-button],
+table[data-te-table]:hover [data-te-button],
 [data-te-button]:focus-visible { opacity: 1; }
 [data-te-button]:hover { color: var(--foreground); }
 

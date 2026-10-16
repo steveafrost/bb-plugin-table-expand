@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-table-expand",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "private": true,
   "description": "Click a markdown table in the timeline to view it full width in a dialog.",

@@ -8,7 +8,7 @@ function renderTable(): HTMLTableElement {
     <div data-markdown-preview>
       <div class="my-2 flex justify-center">
         <div class="w-max max-w-full overflow-x-auto">
-          <table><tbody><tr><td>cell</td><td><a href="#x">link</a></td></tr></tbody></table>
+          <table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>cell</td><td><a href="#x">link</a></td></tr></tbody></table>
         </div>
       </div>
     </div>`;
@@ -43,6 +43,8 @@ describe("startTableExpand", () => {
     await nextFrame();
     expect(table.hasAttribute("data-te-table")).toBe(true);
     expect(document.querySelectorAll("[data-te-button]")).toHaveLength(1);
+    const lastHeader = [...table.querySelectorAll("thead th")].at(-1)!;
+    expect(lastHeader.querySelector("[data-te-button]")).not.toBeNull();
   });
 
   it("opens a copy of the table when a cell is clicked", async () => {
@@ -86,6 +88,7 @@ describe("startTableExpand", () => {
     startTableExpand(controller.signal);
     await nextFrame();
     document.querySelector<HTMLButtonElement>("[data-te-button]")!.click();
+    expect(document.querySelector("dialog[data-te-dialog] [data-te-button]")).toBeNull();
     expect(document.querySelector("dialog[data-te-dialog]")?.hasAttribute("open")).toBe(true);
   });
 
@@ -117,7 +120,7 @@ describe("startTableExpand", () => {
     controller.abort();
     expect(document.querySelector("dialog[data-te-dialog]")).toBeNull();
     expect(document.querySelector("[data-te-button]")).toBeNull();
-    expect(document.querySelector("[data-te-wrapper]")).toBeNull();
+    expect(document.querySelector("[data-te-cell]")).toBeNull();
     expect(table.hasAttribute("data-te-table")).toBe(false);
     expect(table.hasAttribute("title")).toBe(false);
   });

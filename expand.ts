@@ -58,6 +58,8 @@ export function startTableExpand(signal: AbortSignal): () => void {
     const copy = table.cloneNode(true) as HTMLTableElement;
     copy.removeAttribute(TAGGED);
     copy.removeAttribute("title");
+    copy.querySelectorAll(`[${BUTTON}]`).forEach((el) => el.remove());
+    copy.querySelectorAll("[data-te-cell]").forEach((el) => el.removeAttribute("data-te-cell"));
     markNumericColumns(copy);
 
     const rowCount = copy.querySelectorAll("tbody tr").length;
@@ -93,7 +95,7 @@ export function startTableExpand(signal: AbortSignal): () => void {
     if (!(target instanceof Element)) return;
     const button = target.closest<HTMLElement>(`[${BUTTON}]`);
     if (button) {
-      const table = button.parentElement?.querySelector<HTMLTableElement>(`table[${TAGGED}]`);
+      const table = button.closest<HTMLTableElement>(`table[${TAGGED}]`);
       if (table) {
         event.preventDefault();
         event.stopPropagation();
@@ -113,8 +115,11 @@ export function startTableExpand(signal: AbortSignal): () => void {
       if (table.hasAttribute(TAGGED) || table.closest("[data-te-dialog]")) continue;
       table.setAttribute(TAGGED, "");
       table.title = "Click to expand";
-      const wrapper = table.parentElement?.parentElement;
-      if (!wrapper || wrapper.querySelector(`:scope > [${BUTTON}]`)) continue;
+      // The button lives in the last header cell, which reserves padding for
+      // it, so it never covers header text.
+      const row = table.tHead?.rows[0] ?? table.rows[0];
+      const cell = row?.cells[row.cells.length - 1];
+      if (!cell || cell.querySelector(`[${BUTTON}]`)) continue;
       const button = document.createElement("button");
       button.type = "button";
       button.setAttribute(BUTTON, "");
@@ -122,8 +127,8 @@ export function startTableExpand(signal: AbortSignal): () => void {
       button.title = "Expand table";
       button.innerHTML =
         '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
-      wrapper.setAttribute("data-te-wrapper", "");
-      wrapper.appendChild(button);
+      cell.setAttribute("data-te-cell", "");
+      cell.appendChild(button);
     }
   };
 
@@ -144,7 +149,7 @@ export function startTableExpand(signal: AbortSignal): () => void {
     dialog?.remove();
     dialog = null;
     for (const el of document.querySelectorAll(`[${BUTTON}]`)) el.remove();
-    for (const el of document.querySelectorAll(`[data-te-wrapper]`)) el.removeAttribute("data-te-wrapper");
+    for (const el of document.querySelectorAll(`[data-te-cell]`)) el.removeAttribute("data-te-cell");
     for (const el of document.querySelectorAll<HTMLElement>(`table[${TAGGED}]`)) {
       el.removeAttribute(TAGGED);
       el.removeAttribute("title");
