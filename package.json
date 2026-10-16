@@ -2,14 +2,23 @@
   "name": "bb-plugin-table-expand",
   "version": "0.1.0",
   "type": "module",
+  "private": true,
+  "description": "Click a markdown table in the timeline to view it full width in a dialog.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/steveafrost/bb-plugin-table-expand.git"
+  },
+  "license": "MIT",
   "engines": {
     "bb": ">=0.46",
     "bbPluginSdk": ">=0.6.37"
   },
   "bb": {
-    "name": "Table Expand [Experimental]",
-    "description": "Click a markdown table in the timeline to view it full width in a popover.",
-    "branding": { "icon": "Maximize2" },
+    "name": "Table Expand",
+    "description": "Click a markdown table in the timeline, or its corner expand button, to view it full width in a dialog. Esc, the close button or the backdrop closes it.",
+    "branding": {
+      "icon": "Maximize2"
+    },
     "server": "./server.ts",
     "app": "./app.tsx",
     "skills": []
@@ -19,9 +28,16 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "jsdom": "29.1.1",
     "typescript": "^5.7.0",
-    "zod": "^4.6.1"
+    "vitest": "^4.1.11"
   },
-  "license": "MIT",
-  "scripts": { "build": "bb plugin build", "typecheck": "tsc --noEmit" }
+  "keywords": [
+    "bb-plugin"
+  ],
+  "scripts": {
+    "build": "bb plugin build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
 }

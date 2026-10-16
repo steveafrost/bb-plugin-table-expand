@@ -1,25 +1,26 @@
 # Table Expand
 
 bb plugin: click a markdown table in the timeline (or its hover expand button)
-to open it full width in a modal. Esc, the close button, or the backdrop closes it.
-Clicks on links/code buttons and text selections inside the table are ignored.
+to open it full width in a dialog. Esc, the close button or the backdrop closes it.
+Clicks on links, buttons and inputs, modified clicks, and text selections are ignored.
 
-Pairs with the Codex theme rule that keeps tables inside the message column.
-Content script keyed on bb's markdown table DOM; may need updating after bb releases.
+It is a content script keyed on bb's markdown table DOM
+(`[data-markdown-preview] div.overflow-x-auto > table`), so it may need updating
+after bb releases. See `PLUGIN_OVERVIEW.md` for the optional CSS that keeps tables
+inside the message column. Upstream request: https://github.com/get-bb/bb/issues/1705
 
-    bb plugin install path:$PWD
-    bb plugin dev     # rebuild + reload on save
+## Install
 
-## Install from GitHub
+From the bb plugin store (bb-community), or:
 
-    bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@master
+```sh
+bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@v0.1.0
+```
 
-Optional companion CSS (theme or `customCss`) keeps tables inside the message column:
+## Develop
 
-```css
-[data-markdown-preview] div.my-2.flex.justify-center:has(> div.overflow-x-auto > table) {
-  width: 100% !important;
-  margin-inline: 0 !important;
-  justify-content: flex-start;
-}
+```sh
+npm install
+npm run typecheck && npm test
+bb plugin build && bb plugin install . --yes
 ```
