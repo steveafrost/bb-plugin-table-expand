@@ -12,7 +12,7 @@ Content script keyed on bb's markdown table DOM; may need updating after bb rele
 
 ## Install from GitHub
 
-    bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@main
+    bb plugin install git:https://github.com/steveafrost/bb-plugin-table-expand.git@master
 
 Optional companion CSS (theme or `customCss`) keeps tables inside the message column:
 
