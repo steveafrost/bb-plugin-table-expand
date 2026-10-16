@@ -58,6 +58,29 @@ describe("startTableExpand", () => {
     expect(copy.hasAttribute("data-te-table")).toBe(false);
   });
 
+  it("labels the size and right-aligns number columns", async () => {
+    document.body.innerHTML = `
+      <div data-markdown-preview><div class="my-2 flex"><div class="overflow-x-auto">
+        <table>
+          <thead><tr><th>Region</th><th>p50</th><th>Rate</th></tr></thead>
+          <tbody>
+            <tr><td>us-east</td><td>42 ms</td><td>0.08%</td></tr>
+            <tr><td>eu-west</td><td>1,204 ms</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div></div></div>`;
+    startTableExpand(controller.signal);
+    await nextFrame();
+    document.querySelector("td")!.click();
+    const dialog = document.querySelector<HTMLDialogElement>("dialog[data-te-dialog]")!;
+    expect(dialog.querySelector("[data-te-header]")?.textContent).toContain("2 rows × 3 columns");
+    const numeric = (index: number) =>
+      [...dialog.querySelectorAll("tr")].map((row) => (row as HTMLTableRowElement).cells[index].hasAttribute("data-te-numeric"));
+    expect(numeric(0)).toEqual([false, false, false]);
+    expect(numeric(1)).toEqual([true, true, true]);
+    expect(numeric(2)).toEqual([true, true, true]);
+  });
+
   it("opens from the expand button", async () => {
     renderTable();
     startTableExpand(controller.signal);

@@ -12,6 +12,26 @@ function isInteractive(target: EventTarget | null): boolean {
   return target instanceof Element && !!target.closest("a, button, input, summary, [role='button']");
 }
 
+// A cell reads as a number: optional sign/currency, digits, optional unit.
+const NUMERIC = /^[-+−]?[$€£¥]?\s?\d[\d,.\s]*\s?(%|[a-zA-Zµ]{1,3}(\/[a-z]{1,3})?|x|×)?$/;
+
+// Right-align columns whose body cells are all numbers, so digits line up.
+function markNumericColumns(table: HTMLTableElement): void {
+  const rows = [...table.querySelectorAll<HTMLTableRowElement>("tbody tr")];
+  const columns = Math.max(0, ...rows.map((row) => row.cells.length));
+  for (let index = 0; index < columns; index++) {
+    const cells = rows.map((row) => row.cells[index]).filter((cell): cell is HTMLTableCellElement => !!cell);
+    const values = cells.map((cell) => cell.textContent?.trim() ?? "").filter((text) => text && text !== "-" && text !== "—");
+    if (values.length === 0 || !values.every((text) => NUMERIC.test(text))) continue;
+    for (const cell of cells) cell.setAttribute("data-te-numeric", "");
+    table.querySelectorAll<HTMLTableRowElement>("thead tr").forEach((row) => row.cells[index]?.setAttribute("data-te-numeric", ""));
+  }
+}
+
+function plural(count: number, word: string): string {
+  return `${count} ${word}${count === 1 ? "" : "s"}`;
+}
+
 function hasSelection(): boolean {
   const sel = window.getSelection();
   return !!sel && !sel.isCollapsed && sel.toString().trim().length > 0;
@@ -35,22 +55,37 @@ export function startTableExpand(signal: AbortSignal): () => void {
       dialog.addEventListener("close", () => dialog?.replaceChildren());
       document.body.appendChild(dialog);
     }
+    const copy = table.cloneNode(true) as HTMLTableElement;
+    copy.removeAttribute(TAGGED);
+    copy.removeAttribute("title");
+    markNumericColumns(copy);
+
+    const rowCount = copy.querySelectorAll("tbody tr").length;
+    const columnCount = Math.max(0, ...[...copy.rows].map((row) => row.cells.length));
+
+    const header = document.createElement("div");
+    header.setAttribute("data-te-header", "");
+    const label = document.createElement("span");
+    label.textContent = `${plural(rowCount, "row")} × ${plural(columnCount, "column")}`;
     const closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.setAttribute("data-te-close", "");
     closeButton.setAttribute("aria-label", "Close table");
-    closeButton.textContent = "✕";
+    closeButton.title = "Close (Esc)";
+    closeButton.innerHTML =
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
     closeButton.addEventListener("click", close);
+    header.append(label, closeButton);
 
     const scroller = document.createElement("div");
     scroller.setAttribute("data-te-scroller", "");
-    const copy = table.cloneNode(true) as HTMLTableElement;
-    copy.removeAttribute(TAGGED);
+    // Focusable so arrow keys and Page Up/Down scroll the table.
+    scroller.tabIndex = -1;
     scroller.appendChild(copy);
 
-    dialog.replaceChildren(closeButton, scroller);
+    dialog.replaceChildren(header, scroller);
     dialog.showModal();
-    closeButton.focus();
+    scroller.focus({ preventScroll: true });
   };
 
   const onClick = (event: MouseEvent) => {
